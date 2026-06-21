@@ -336,7 +336,7 @@ This project is licensed under the **MIT License**.
 
 ## Author
 
-**Dhev06**
+**Dhevika**
 Built with love using Django, TensorFlow, and a strong belief that AI can assist medicine — not replace doctors.
 
 ---

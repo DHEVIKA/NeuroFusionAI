@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=neurofusiondb
+      - POSTGRES_USER=neurofusionuser
+      - POSTGRES_PASSWORD=neurofusionpass
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    command: >
+      bash -c "python generate_model.py &&
+               python manage.py migrate --noinput &&
+               python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://neurofusionuser:neurofusionpass@db:5432/neurofusiondb
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-docker-dev-secret-key-12345
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

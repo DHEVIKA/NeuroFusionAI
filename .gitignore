@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+staticfiles/
+media/
+
+# Environment variables
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# TensorFlow model weights (large files — store in Git LFS or Cloudinary)
+# Comment out the line below if you WANT to push the model to GitHub
+App/Model/*.h5
+
+# Dataset (very large — do not push to GitHub)
+App/Dataset/
+
+# Temp scripts
+check_model.py
+check_layers.py
+test_upload_flow.py
+generate_model.py
+train_cnn.py

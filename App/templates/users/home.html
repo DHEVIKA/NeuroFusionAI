@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Hero Area -->
+<section class="hero-section">
+    <div style="max-width: 550px;">
+        <h2 class="hero-title text-white">Advanced Medical AI for Brain Tumor Detection</h2>
+        <p class="hero-subtitle">
+            NeuroFusionAI offers clinical-grade Convolutional Neural Network (CNN) analysis of brain magnetic resonance imaging (MRI) scans. Instantly verify tumor classification types, generate attention heatmaps, and download medical records.
+        </p>
+        <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg px-4 rounded-3 text-white fw-bold">Go to Dashboard</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 rounded-3 text-white fw-bold">Radiologist Sign In</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4 rounded-3 text-white border-secondary">Create Account</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Hero Mock MRI Scanner Animation -->
+    <div class="d-none d-lg-block mri-display-container scanline-active border border-secondary" style="max-width: 420px; overflow: hidden; border-radius: 20px;">
+        <img src="https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&w=600&q=80" alt="MRI Scanner Mock" class="img-fluid" style="filter: brightness(0.8) contrast(1.1); transform: scale(1.02);">
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="py-5 border-top border-secondary" id="about-section">
+    <div class="text-center mb-5">
+        <span class="text-primary fw-bold uppercase tracking-wider small">About NeuroFusionAI</span>
+        <h3 class="text-white fs-1 mt-2">Deep Learning Medical Analysis</h3>
+        <p class="text-muted mx-auto" style="max-width: 600px;">Our custom 2D convolutional neural network separates scans into 6 classes with high accuracy and localizes lesions using Grad-CAM attention overlays.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- 6 Classes Showcase Cards -->
+        <div class="col-12 col-md-4">
+            <div class="glass-panel p-4 h-100">
+                <div class="text-primary fs-3 mb-3"><i class="bi bi-shield-fill-check"></i></div>
+                <h5 class="text-white">Glioma & Meningioma</h5>
+                <p class="text-muted small leading-relaxed">Gliomas arise from glial cells and meningiomas from the meninges. The system performs accurate detection, mapping tumors even at sub-centimeter bounds.</p>
+            </div>
+        </div>
+        
+        <div class="col-12 col-md-4">
+            <div class="glass-panel p-4 h-100">
+                <div class="text-info fs-3 mb-3"><i class="bi bi-activity"></i></div>
+                <h5 class="text-white">Neurocytoma & Normal</h5>
+                <p class="text-muted small leading-relaxed">Accurately identifies rare Central Neurocytomas located in ventricles, as well as labeling completely healthy, normal scan control groups.</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="glass-panel p-4 h-100">
+                <div class="text-warning fs-3 mb-3"><i class="bi bi-heart-pulse-fill"></i></div>
+                <h5 class="text-white">Pituitary & Schwannoma</h5>
+                <p class="text-muted small leading-relaxed">Detects Pituitary adenomas compressing optic paths, and Schwannomas affecting cranial acoustic nerve sheaths, indicating localized risk scores.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQs Section -->
+<section class="py-5 border-top border-secondary" id="faq-section">
+    <h3 class="text-white text-center fs-2 mb-5">Frequently Asked Questions</h3>
+    
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <div class="accordion accordion-flush" id="faqAccordion">
+                <!-- Q1 -->
+                <div class="accordion-item bg-transparent border-bottom border-secondary mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button bg-transparent text-white collapsed fs-5 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            What types of brain MRI sequences are supported?
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted leading-relaxed">
+                            NeuroFusionAI supports contrast-enhanced T1-weighted axial/sagittal slices and T2-weighted MRI scans in standard image formats (JPEG, PNG). Files should have clean contrast and minimal motion artifacts.
+                        </div>
+                    </div>
+                </div>
+                <!-- Q2 -->
+                <div class="accordion-item bg-transparent border-bottom border-secondary mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button bg-transparent text-white collapsed fs-5 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How does the Grad-CAM visualization work?
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted leading-relaxed">
+                            Grad-CAM utilizes the gradients flowing into the final convolutional layer of our neural network. It maps out where the network is focusing its "attention" to make its prediction, overlaying a colored heatmap indicating regions of high tumor likelihood.
+                        </div>
+                    </div>
+                </div>
+                <!-- Q3 -->
+                <div class="accordion-item bg-transparent border-bottom border-secondary mb-3">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button bg-transparent text-white collapsed fs-5 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Is this platform diagnostic on its own?
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted leading-relaxed">
+                            No. NeuroFusionAI is a radiologist assistant platform. All neural network outputs, confidence scores, and evaluations must be verified by a licensed medical professional prior to diagnosis or treatment planning.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form -->
+<section class="py-5 border-top border-secondary" id="contact-section">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="glass-panel p-4">
+                <h3 class="text-white text-center mb-4">{{ t.contact }}</h3>
+                <form method="POST" action="{% url 'contact' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted small uppercase">Full Name</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" placeholder="Dr. John Doe" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small uppercase">Email Address</label>
+                        <input type="email" class="form-control bg-dark text-white border-secondary" placeholder="doctor@hospital.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small uppercase">Message / Clinical Inquiry</label>
+                        <textarea class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Type your message here..." required></textarea>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary text-white py-2.5 rounded-3 fw-bold">Submit message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+        <div class="glass-panel p-4">
+            
+            <!-- Tab Headers -->
+            <ul class="nav nav-tabs nav-fill border-secondary mb-4" id="authTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab != 'register' %}active text-white bg-primary bg-opacity-20 border-0{% else %}text-muted border-0{% endif %}" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-panel" type="button" role="tab" aria-controls="login-panel" aria-selected="{% if tab != 'register' %}true{% else %}false{% endif %}" style="border-radius: 10px;">
+                        {{ t.login }}
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if tab == 'register' %}active text-white bg-primary bg-opacity-20 border-0{% else %}text-muted border-0{% endif %}" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-panel" type="button" role="tab" aria-controls="register-panel" aria-selected="{% if tab == 'register' %}true{% else %}false{% endif %}" style="border-radius: 10px;">
+                        {{ t.register }}
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="authTabsContent">
+                <!-- 1. Sign In Tab Content -->
+                <div class="tab-pane fade {% if tab != 'register' %}show active{% endif %}" id="login-panel" role="tabpanel" aria-labelledby="login-tab">
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label text-muted small uppercase">Username</label>
+                            <input type="text" name="username" class="form-control bg-dark text-white border-secondary" placeholder="Enter username" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small uppercase">Password</label>
+                            <input type="password" name="password" class="form-control bg-dark text-white border-secondary" placeholder="Enter password" required>
+                        </div>
+                        
+                        <div class="d-grid mt-4 mb-3">
+                            <button type="submit" class="btn btn-primary text-white py-2.5 rounded-3 fw-bold">
+                                <i class="bi bi-box-arrow-in-right text-white me-1"></i>
+                                {{ t.login }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Google Single Sign-In divider -->
+                    <div class="text-center my-3 text-muted small">OR</div>
+
+                    <button id="google-signin-btn" class="btn btn-outline-secondary border-secondary text-white w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-google text-danger fs-5"></i>
+                        <span>Continue with Google</span>
+                    </button>
+                </div>
+
+                <!-- 2. Register Tab Content -->
+                <div class="tab-pane fade {% if tab == 'register' %}show active{% endif %}" id="register-panel" role="tabpanel" aria-labelledby="register-tab">
+                    <form method="POST" action="{% url 'register' %}">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger bg-danger bg-opacity-10 border-0 text-white rounded-3 small p-2 mb-3">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <strong>{{ field.label }}:</strong> {{ error }}<br/>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                {{ error }}<br/>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small uppercase">Username</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small uppercase">Email Address</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Password</label>
+                                {{ form.password }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Confirm Password</label>
+                                {{ form.confirm_password }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small uppercase">User Role</label>
+                            {{ form.role }}
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Professional ID</label>
+                                {{ form.professional_id }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Department</label>
+                                {{ form.department }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary text-white py-2.5 rounded-3 fw-bold">
+                                <i class="bi bi-person-plus-fill text-white me-1"></i>
+                                Register Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

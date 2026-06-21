@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+        <div class="glass-panel p-5">
+            <div class="text-center mb-5">
+                <h2 class="text-white fs-1 mb-2">{{ t.upload_mri }}</h2>
+                <p class="text-muted">Enter patient demographics and upload a high-resolution brain MRI scan to run neural diagnostics.</p>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" id="upload-scan-form">
+                {% csrf_token %}
+                
+                <div class="row g-4 mb-4">
+                    <!-- Patient Name -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-muted fw-semibold small uppercase">{{ t.patient_name }}</label>
+                        {{ form.patient_name }}
+                    </div>
+                    <!-- Patient ID -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-muted fw-semibold small uppercase">{{ t.patient_id }}</label>
+                        {{ form.patient_id }}
+                    </div>
+                    <!-- Patient Age -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-muted fw-semibold small uppercase">{{ t.patient_age }}</label>
+                        {{ form.patient_age }}
+                    </div>
+                    <!-- Patient Gender -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label text-muted fw-semibold small uppercase">{{ t.patient_gender }}</label>
+                        {{ form.patient_gender }}
+                    </div>
+                </div>
+
+                <!-- File Drag and Drop Zone -->
+                <div class="mb-4">
+                    <label class="form-label text-muted fw-semibold small uppercase">Brain MRI Scan (JPEG/PNG)</label>
+                    <div class="drag-drop-area" id="drag-drop-area">
+                        <div id="upload-placeholder">
+                            <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 3.5rem;"></i>
+                            <h5 class="text-white mt-3">Drag & Drop MRI image here</h5>
+                            <p class="text-muted small">or click to browse local files</p>
+                        </div>
+                        
+                        <!-- Hidden input field -->
+                        <div style="display: none;">
+                            {{ form.image }}
+                        </div>
+                        
+                        <!-- Preview container -->
+                        <div id="mri-preview-container" class="mri-display-container mt-3" style="display: none; max-width: 350px; margin: 0 auto;">
+                            <div id="scanner-overlay" class="w-100 h-100">
+                                <img src="" id="mri-preview-img" alt="MRI Preview" class="img-fluid rounded-3 border border-secondary">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes / Comments -->
+                <div class="mb-4">
+                    <label class="form-label text-muted fw-semibold small uppercase">Clinical Notes & Observations (Optional)</label>
+                    {{ form.notes }}
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid mt-5">
+                    <button type="submit" class="btn btn-primary btn-lg py-3 rounded-3 fw-bold text-white" id="submit-scan-btn">
+                        <i class="bi bi-cpu-fill text-white me-2"></i>
+                        {{ t.run_prediction }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

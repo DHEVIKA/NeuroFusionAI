@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+{% block content %}
+<div class="glass-panel p-4 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <h2 class="text-white mb-0">{{ t.patient_records }}</h2>
+        <a href="{% url 'upload_scan' %}" class="btn btn-primary text-white d-flex align-items-center gap-2 rounded-3 py-2 px-3">
+            <i class="bi bi-plus-lg text-white"></i>
+            <span class="text-white fw-bold">New Scan</span>
+        </a>
+    </div>
+
+    <!-- Search and Filter Form -->
+    <form method="GET" class="row g-3 align-items-center mb-4">
+        <div class="col-12 col-md-6 col-lg-5">
+            <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" class="form-control bg-dark text-white border-secondary" placeholder="{{ t.search_placeholder }}" value="{{ search_query }}">
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+            <select name="risk" class="form-select bg-dark text-white border-secondary">
+                <option value="">All Risk Levels</option>
+                <option value="Low" {% if risk_filter == 'Low' %}selected{% endif %}>Low Risk</option>
+                <option value="Medium" {% if risk_filter == 'Medium' %}selected{% endif %}>Medium Risk</option>
+                <option value="High" {% if risk_filter == 'High' %}selected{% endif %}>High Risk</option>
+            </select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3 col-lg-2 d-grid">
+            <button type="submit" class="btn btn-outline-secondary border-secondary text-white py-2">
+                <i class="bi bi-funnel-fill text-white me-1"></i>
+                {{ t.filter }}
+            </button>
+        </div>
+    </form>
+
+    <!-- Patients Scan History Registry -->
+    {% if page_obj %}
+    <div class="table-responsive">
+        <table class="custom-table text-white">
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Age/Gender</th>
+                    <th>Result Category</th>
+                    <th>Confidence</th>
+                    <th>Risk</th>
+                    <th>Timestamp</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in page_obj %}
+                <tr>
+                    <td><code>{{ scan.patient_id }}</code></td>
+                    <td>{{ scan.patient_name }}</td>
+                    <td>{{ scan.patient_age }}y / {{ scan.patient_gender }}</td>
+                    <td>{{ scan.label|replace:"_, " |title }}</td>
+                    <td>{{ scan.probability|floatformat:2 }}%</td>
+                    <td>
+                        <span class="badge-risk {% if scan.risk_level == 'High' %}high{% elif scan.risk_level == 'Medium' %}medium{% else %}low{% endif %}">
+                            {{ scan.risk_level }}
+                        </span>
+                    </td>
+                    <td class="small text-muted">{{ scan.uploaded_at|date:"Y-m-d H:i" }}</td>
+                    <td class="text-end">
+                        <div class="d-inline-flex gap-2">
+                            <a href="{% url 'prediction_output' scan.id %}" class="btn btn-sm btn-outline-primary text-white border-primary" title="Inspect">
+                                <i class="bi bi-eye-fill text-white"></i>
+                            </a>
+                            <a href="{% url 'download_report' scan.id %}" class="btn btn-sm btn-outline-secondary text-white border-secondary" title="Download Report">
+                                <i class="bi bi-file-earmark-pdf-fill text-white"></i>
+                            </a>
+                            {% if user.profile.role == 'admin' or scan.user == user %}
+                            <a href="{% url 'delete_scan' scan.id %}" class="btn btn-sm btn-outline-danger text-white border-danger" title="Delete" onclick="return confirm('Are you sure you want to permanently delete this MRI patient record?')">
+                                <i class="bi bi-trash-fill text-white"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Django Pagination Nav -->
+    <nav class="mt-4 d-flex justify-content-between align-items-center">
+        <span class="text-muted small">
+            Showing records {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }}
+        </span>
+        
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link bg-dark border-secondary text-white" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}">
+                    Previous
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link bg-dark border-secondary text-muted">Previous</span>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link bg-primary border-primary text-white">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link bg-dark border-secondary text-white" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}">
+                    Next
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link bg-dark border-secondary text-muted">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-folder-x fs-1 text-muted"></i>
+        <p class="text-muted mt-3 mb-0">{{ t.no_records }}</p>
+        <a href="{% url 'upload_scan' %}" class="btn btn-primary mt-3 text-white">Upload MRI Scan</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

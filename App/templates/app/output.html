@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load app_filters %}
+{% block content %}
+<div class="row g-4">
+    <!-- MRI Visualizations (Original & Grad-CAM) -->
+    <div class="col-12 col-lg-6">
+        <div class="glass-panel p-4 h-100">
+            <h3 class="text-white mb-4">MRI Visualizations</h3>
+            
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 text-center">
+                    <div class="text-muted small mb-2">ORIGINAL MRI SCAN</div>
+                    <img src="{{ scan.image.url }}" alt="Original MRI" class="img-fluid rounded-3 border border-secondary" style="max-height: 300px; object-fit: contain;">
+                </div>
+                
+                <div class="col-12 col-sm-6 text-center">
+                    <div class="text-muted small mb-2">{{ t.gradcam }}</div>
+                    {% if scan.heatmap %}
+                        <img src="{{ scan.heatmap.url }}" alt="Grad-CAM Heatmap" class="img-fluid rounded-3 border border-secondary" style="max-height: 300px; object-fit: contain;">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center bg-dark text-muted rounded-3 border border-secondary" style="height: 250px;">
+                            <span>Heatmap Unavailable</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Accessibility voice assist narration -->
+            <div class="mt-5 text-center">
+                <button class="btn btn-outline-primary py-2 px-4 rounded-3 d-flex align-items-center gap-2 mx-auto" id="voice-assist">
+                    <i class="bi bi-volume-up-fill fs-5"></i>
+                    <span>{{ t.voice_assistance }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Diagnostic Summary -->
+    <div class="col-12 col-lg-6">
+        <div class="glass-panel p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h3 class="text-white mb-0">Diagnostic Assessment</h3>
+                    <span class="badge-risk {% if scan.risk_level == 'High' %}high{% elif scan.risk_level == 'Medium' %}medium{% else %}low{% endif %} fs-6" id="result-risk">
+                        {{ scan.risk_level }} Risk
+                    </span>
+                </div>
+                
+                <!-- Patient Demographics Info -->
+                <div class="p-3 bg-dark bg-opacity-40 rounded-3 mb-4 border border-secondary">
+                    <div class="row g-2">
+                        <div class="col-6"><span class="text-muted small">PATIENT NAME:</span> <span class="text-white fw-bold d-block" id="result-patient">{{ scan.patient_name }}</span></div>
+                        <div class="col-6"><span class="text-muted small">MRN / ID:</span> <span class="text-white fw-bold d-block"><code>{{ scan.patient_id }}</code></span></div>
+                        <div class="col-6"><span class="text-muted small">AGE / GENDER:</span> <span class="text-white fw-bold d-block">{{ scan.patient_age }} years / {{ scan.get_patient_gender_display }}</span></div>
+                        <div class="col-6"><span class="text-muted small">TIMESTAMP:</span> <span class="text-white d-block small">{{ scan.uploaded_at|date:"Y-m-d H:i UTC" }}</span></div>
+                    </div>
+                </div>
+
+                <!-- Classification specifics -->
+                <div class="mb-4">
+                    <div class="text-muted small mb-1">{{ t.predicted_tumor }}</div>
+                    <div class="text-white fs-2 fw-bold" id="result-label">{{ scan.label|replace:"_, " |title }}</div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="text-muted small mb-1">{{ t.confidence }}</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="progress flex-grow-1 bg-dark border border-secondary" style="height: 12px; border-radius: 6px;">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ scan.probability }}%; border-radius: 6px;" aria-valuenow="{{ scan.probability }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <span class="text-white fw-bold fs-5" id="result-confidence">{{ scan.probability|floatformat:2 }}%</span>
+                    </div>
+                </div>
+
+                <!-- Doctor Notes Form -->
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-semibold uppercase">{{ t.doctor_notes }}</label>
+                        <textarea name="notes" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Add diagnosis, treatment options, or observations...">{{ scan.notes|default_if_none:"" }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary text-white border-primary py-2 px-3 rounded-3">
+                        <i class="bi bi-floppy-fill text-white me-1"></i>
+                        {{ t.save }}
+                    </button>
+                </form>
+            </div>
+
+            <!-- Export and Communications Panel -->
+            <div class="pt-4 border-top border-secondary mt-4">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <a href="{% url 'download_report' scan.id %}" class="btn btn-outline-secondary border-secondary text-white w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>
+                            <span>{{ t.download_pdf }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="col-12 col-sm-6">
+                        <button class="btn btn-outline-secondary border-secondary text-white w-100 py-2.5 rounded-3 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="collapse" data-bs-target="#emailSection" aria-expanded="false" aria-controls="emailSection">
+                            <i class="bi bi-envelope-at-fill text-info fs-5"></i>
+                            <span>Email Report</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Email Collapsible Form -->
+                <div class="collapse mt-3" id="emailSection">
+                    <form method="POST" action="{% url 'email_report' scan.id %}" class="glass-panel p-3">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="email" name="email" class="form-control bg-dark text-white border-secondary" placeholder="doctor@hospital.com" required>
+                            <button type="submit" class="btn btn-primary text-white">
+                                <i class="bi bi-send-fill text-white"></i> Send
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

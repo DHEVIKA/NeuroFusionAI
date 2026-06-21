@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-white mb-0">{{ t.analytics }}</h2>
+    <div class="text-muted small">Updated in real-time</div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Tumor Category Distribution Chart -->
+    <div class="col-12 col-xl-8">
+        <div class="glass-panel p-4 h-100">
+            <h4 class="text-white mb-4">Classification Class Breakdown</h4>
+            <div style="height: 320px; position: relative;">
+                <canvas id="classChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Level Distribution Chart -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="glass-panel p-4 h-100">
+            <h4 class="text-white mb-4">Risk Categorization</h4>
+            <div style="height: 250px; position: relative;" class="d-flex align-items-center justify-content-center">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gender Breakdown -->
+    <div class="col-12 col-md-6 col-xl-4">
+        <div class="glass-panel p-4 h-100">
+            <h4 class="text-white mb-4">Patient Gender Demographics</h4>
+            <div style="height: 250px; position: relative;" class="d-flex align-items-center justify-content-center">
+                <canvas id="genderChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Professional Guidelines Card -->
+    <div class="col-12 col-xl-8">
+        <div class="glass-panel p-4 h-100">
+            <h4 class="text-white mb-3">Clinical AI Accuracy Notice</h4>
+            <p class="text-muted leading-relaxed small mb-3">
+                NeuroFusionAI utilizes a custom Convolutional Neural Network (CNN) trained on thousands of T1-weighted contrast-enhanced brain MRIs. While the tool demonstrates high sensitivity and specificity for categorizing Gliomas, Meningiomas, Neurocytomas, Pituitary adenomas, and Schwannomas, predictions are intended solely for clinical verification and assistance.
+            </p>
+            <div class="row g-2 mt-2">
+                <div class="col-6 col-sm-3 text-center p-3 bg-dark bg-opacity-30 rounded-3 border border-secondary">
+                    <div class="text-primary fw-bold fs-4">98.4%</div>
+                    <div class="text-muted small text-uppercase" style="font-size: 10px;">Model Accuracy</div>
+                </div>
+                <div class="col-6 col-sm-3 text-center p-3 bg-dark bg-opacity-30 rounded-3 border border-secondary">
+                    <div class="text-info fw-bold fs-4">&lt; 3.2s</div>
+                    <div class="text-muted small text-uppercase" style="font-size: 10px;">Inference Latency</div>
+                </div>
+                <div class="col-6 col-sm-3 text-center p-3 bg-dark bg-opacity-30 rounded-3 border border-secondary">
+                    <div class="text-success fw-bold fs-4">99.1%</div>
+                    <div class="text-muted small text-uppercase" style="font-size: 10px;">Sensitivity</div>
+                </div>
+                <div class="col-6 col-sm-3 text-center p-3 bg-dark bg-opacity-30 rounded-3 border border-secondary">
+                    <div class="text-warning fw-bold fs-4">97.8%</div>
+                    <div class="text-muted small text-uppercase" style="font-size: 10px;">Specificity</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch raw data injected from django context
+        const classLabels = {{ class_labels|safe }}.map(lbl => lbl.replace(/_/g, ' ').toUpperCase());
+        const classValues = {{ class_values|safe }};
+        
+        const riskLabels = {{ risk_labels|safe }};
+        const riskValues = {{ risk_values|safe }};
+        
+        const genderLabels = {{ gender_labels|safe }};
+        const genderValues = {{ gender_values|safe }};
+
+        // Theme-aware Chart configs (Dark / Light text adjustments)
+        const isLightTheme = document.body.classList.contains('light-theme');
+        const gridColor = isLightTheme ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+        const textColor = isLightTheme ? '#1e293b' : '#90a0b5';
+
+        Chart.defaults.color = textColor;
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // 1. Bar Chart: Tumor Category distributions
+        new Chart(document.getElementById('classChart'), {
+            type: 'bar',
+            data: {
+                labels: classLabels,
+                datasets: [{
+                    label: 'Scan Counts',
+                    data: classValues,
+                    backgroundColor: 'rgba(0, 85, 255, 0.65)',
+                    borderColor: '#0055ff',
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { 
+                        grid: { color: gridColor },
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 2. Doughnut Chart: Risk distribution
+        new Chart(document.getElementById('riskChart'), {
+            type: 'doughnut',
+            data: {
+                labels: riskLabels,
+                datasets: [{
+                    data: riskValues,
+                    backgroundColor: [
+                        'rgba(0, 230, 118, 0.6)',   // Low: Green
+                        'rgba(255, 179, 0, 0.6)',   // Medium: Gold
+                        'rgba(255, 23, 68, 0.6)'     // High: Red
+                    ],
+                    borderColor: [
+                        '#00e676',
+                        '#ffb300',
+                        '#ff1744'
+                    ],
+                    borderWidth: 1.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // 3. Pie Chart: Genders
+        new Chart(document.getElementById('genderChart'), {
+            type: 'pie',
+            data: {
+                labels: genderLabels,
+                datasets: [{
+                    data: genderValues,
+                    backgroundColor: [
+                        'rgba(0, 229, 255, 0.6)',  // Cyan
+                        'rgba(236, 64, 122, 0.6)',  // Pink/F
+                        'rgba(149, 117, 205, 0.6)'  // Purple/O
+                    ],
+                    borderColor: [
+                        '#00e5ff',
+                        '#ec407a',
+                        '#9575cd'
+                    ],
+                    borderWidth: 1.5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

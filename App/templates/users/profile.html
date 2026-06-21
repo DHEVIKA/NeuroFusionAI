@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="glass-panel p-4 mb-4">
+            <h2 class="text-white mb-4">{{ t.profile }}</h2>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row g-4">
+                    <!-- Avatar Upload -->
+                    <div class="col-12 col-md-4 text-center border-end border-secondary pb-4 pb-md-0">
+                        <div class="mb-3 d-flex flex-column align-items-center">
+                            {% if user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}" alt="Radiologist Avatar" class="img-thumbnail rounded-circle border border-primary p-1 bg-dark mb-3" style="width: 140px; height: 140px; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-primary text-white d-flex align-items-center justify-content-center fw-bold rounded-circle mb-3" style="width: 140px; height: 140px; font-size: 3rem;">
+                                    {{ user.username|slice:":2"|upper }}
+                                </div>
+                            {% endif %}
+                            <label class="form-label text-muted small uppercase">Change Avatar</label>
+                            {{ form.avatar }}
+                        </div>
+                    </div>
+
+                    <!-- Radiologist demographic & license info -->
+                    <div class="col-12 col-md-8">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small uppercase">Email Address</label>
+                                {{ form.email }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Professional ID / Lic. Number</label>
+                                {{ form.professional_id }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-muted small uppercase">Department</label>
+                                {{ form.department }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-muted small uppercase">User Role (Classification access level)</label>
+                                {{ form.role }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary">
+                            <a href="{% url 'change_password' %}" class="btn btn-outline-secondary border-secondary text-white py-2 px-3 rounded-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-key-fill text-white"></i>
+                                <span>{{ t.change_password }}</span>
+                            </a>
+                            
+                            <button type="submit" class="btn btn-primary text-white py-2 px-4 rounded-3 fw-bold">
+                                <i class="bi bi-floppy-fill text-white me-1"></i>
+                                {{ t.save }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

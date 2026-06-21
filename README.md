@@ -189,6 +189,16 @@ python manage.py runserver
 
 Visit: http://127.0.0.1:8000
 
+
+
+https://github.com/user-attachments/assets/d25a4ea4-313d-4a0b-931a-7fe904aa3c52
+
+
+
+
+
+
+
 ---
 
 ## Docker Setup
